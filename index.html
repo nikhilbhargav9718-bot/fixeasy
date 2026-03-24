@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>FixEasy Ultimate</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<style>
+body{margin:0;font-family:Arial;background:#0f172a;color:white;}
+header{background:#020617;padding:15px;text-align:center;font-size:22px;}
+.box{background:#1e293b;margin:15px;padding:15px;border-radius:10px;}
+input,select,button{width:100%;padding:10px;margin:5px 0;border:none;border-radius:6px;}
+button{background:#22c55e;color:white;font-weight:bold;}
+table{width:100%;margin-top:10px;}
+td{padding:6px;border-bottom:1px solid #444;}
+.admin{display:none;}
+</style>
+</head>
+
+<body>
+
+<header>🔧 FixEasy Ultimate</header>
+
+<div class="box">
+<h3>🔐 Login</h3>
+<select id="role">
+<option value="customer">Customer</option>
+<option value="technician">Technician</option>
+<option value="admin">Admin</option>
+</select>
+
+<input id="loginPhone" placeholder="Phone">
+<input id="loginPass" placeholder="Password">
+
+<button onclick="loginUser()">Login</button>
+<button onclick="registerUser()">Register</button>
+
+<p id="msg"></p>
+
+<div id="techPassBox" style="display:none;">
+<h3>🔁 Technician Forgot Password</h3>
+<input id="fphone" placeholder="Phone">
+<input id="fnewpass" placeholder="New Password">
+<button onclick="resetPass()">Reset</button>
+
+<h3>🔑 Change Password</h3>
+<input id="oldPass" placeholder="Old Password">
+<input id="newPass" placeholder="New Password">
+<button onclick="changePass()">Change</button>
+</div>
+</div>
+
+<div class="box">
+<h3>📲 Book Service</h3>
+<input id="name" placeholder="Name">
+<input id="phone" placeholder="Phone">
+
+<select id="service">
+<option>AC Repair</option>
+<option>AC Gas Filling</option>
+<option>Fridge Repair</option>
+<option>Washing Machine</option>
+<option>Geyser</option>
+</select>
+
+<input id="address" placeholder="Address">
+<button onclick="book()">Submit Booking</button>
+<p>₹250 Visiting Charge</p>
+</div>
+
+<div class="box admin" id="adminPanel">
+<h3>👑 Admin Panel</h3>
+
+<input id="search" placeholder="Search Customer Phone">
+<button onclick="searchData()">Search</button>
+
+<button onclick="checkWarranty()">🔔 Warranty Alerts</button>
+
+<table id="table"></table>
+</div>
+
+<div class="box admin" id="techPanel">
+<h3>👨‍🔧 Technician Panel</h3>
+
+<button onclick="getLocation()">📍 Set Location</button>
+
+<h3>Nearby Jobs</h3>
+<table id="avail"></table>
+
+<h3>My Jobs</h3>
+<table id="myjobs"></table>
+
+<h3>Total Earnings: ₹<span id="earn">0</span></h3>
+</div>
+
+<script>
+
+// ADMIN
+let adminPhone="8447713873";
+let adminPass="DL8SDM0339";
+
+let users=JSON.parse(localStorage.getItem("users"))||[];
+let bookings=JSON.parse(localStorage.getItem("data"))||[];
+
+// REGISTER
+function registerUser(){
+if(role.value=="admin"){msg.innerText="Not allowed";return;}
+let u={phone:loginPhone.value,pass:loginPass.value,role:role.value};
+users.push(u);
+localStorage.setItem("users",JSON.stringify(users));
+msg.innerText="Registered";
+}
+
+// LOGIN
+function loginUser(){
+techPassBox.style.display="none";
+
+if(role.value=="admin"){
+if(loginPhone.value==adminPhone && loginPass.value==adminPass){
+adminPanel.style.display="block";
+show();
+return;
+}else{return;}
+}
+
+let u=users.find(x=>x.phone==loginPhone.value && x.pass==loginPass.value && x.role==role.value);
+if(!u){msg.innerText="Wrong";return;}
+
+localStorage.setItem("currentUser",JSON.stringify(u));
+
+if(u.role=="technician"){
+techPanel.style.display="block";
+techPassBox.style.display="block";
+showMyJobs();
+}
+}
+
+// PASSWORD SYSTEM
+function resetPass(){
+let u=users.find(x=>x.phone==fphone.value && x.role=="technician");
+if(!u){alert("Not found");return;}
+u.pass=fnewpass.value;
+localStorage.setItem("users",JSON.stringify(users));
+alert("Reset Done");
+}
+
+function changePass(){
+let current=JSON.parse(localStorage.getItem("currentUser"));
+if(current.role!="technician"){return;}
+let u=users.find(x=>x.phone==current.phone);
+if(u.pass!=oldPass.value){alert("Wrong");return;}
+u.pass=newPass.value;
+localStorage.setItem("users",JSON.stringify(users));
+alert("Changed");
+}
+
+// BOOK
+function book(){
+navigator.geolocation.getCurrentPosition(pos=>{
+
+let today=new Date();
+let warranty="No";
+
+if(service.value.toLowerCase().includes("gas")){
+let d=new Date();
+d.setMonth(d.getMonth()+4);
+warranty="Till "+d.toLocaleDateString();
+}
+
+bookings.push({
+name:name.value,
+phone:phone.value,
+service:service.value,
+amount:500,
+tech:"",
+status:"Pending",
+date:today.toLocaleDateString(),
+warranty:warranty,
+lat:pos.coords.latitude,
+lng:pos.coords.longitude
+});
+
+save();
+alert("Booking Done");
+
+});
+}
+
+function save(){
+localStorage.setItem("data",JSON.stringify(bookings));
+}
+
+// ADMIN TABLE
+function show(filter=""){
+let html="<tr><td>Name</td><td>Phone</td><td>Service</td><td>Date</td><td>Warranty</td></tr>";
+
+bookings.forEach((b,i)=>{
+if(filter && !b.phone.includes(filter)) return;
+
+html+=`<tr>
+<td>${b.name}</td>
+<td>${b.phone}</td>
+<td>${b.service}</td>
+<td>${b.date}</td>
+<td>${b.warranty}</td>
+</tr>`;
+});
+
+table.innerHTML=html;
+}
+
+function searchData(){show(search.value);}
+
+// WARRANTY ALERT
+function checkWarranty(){
+let today=new Date();
+
+bookings.forEach(b=>{
+if(b.warranty && b.warranty.includes("Till")){
+let d=new Date(b.warranty.replace("Till ",""));
+let diff=(d-today)/(1000*60*60*24);
+
+if(diff<5){
+alert("⚠ Warranty Expiring: "+b.name+" "+b.phone);
+}
+}
+});
+}
+
+// LOCATION
+let tLat=0,tLng=0;
+
+function getLocation(){
+navigator.geolocation.getCurrentPosition(pos=>{
+tLat=pos.coords.latitude;
+tLng=pos.coords.longitude;
+showNearby();
+});
+}
+
+function dist(a,b,c,d){
+let R=6371;
+let dLat=(c-a)*Math.PI/180;
+let dLon=(d-b)*Math.PI/180;
+let x=Math.sin(dLat/2)**2+
+Math.cos(a*Math.PI/180)*Math.cos(c*Math.PI/180)*Math.sin(dLon/2)**2;
+return R*2*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
+}
+
+function showNearby(){
+let html="";
+bookings.forEach((b,i)=>{
+if(b.lat){
+let d=dist(tLat,tLng,b.lat,b.lng);
+if(d<10 && !b.tech){
+html+=`<tr>
+<td>${b.name}</td>
+<td>${b.service}</td>
+<td>${d.toFixed(1)}km</td>
+<td><button onclick="take(${i})">Take</button></td>
+</tr>`;
+}
+}
+});
+avail.innerHTML=html;
+}
+
+function take(i){
+let u=JSON.parse(localStorage.getItem("currentUser"));
+bookings[i].tech=u.phone;
+bookings[i].status="Assigned";
+save();
+showNearby();
+showMyJobs();
+}
+
+// MY JOBS + PDF
+function showMyJobs(){
+let u=JSON.parse(localStorage.getItem("currentUser"));
+let total=0;
+let html="";
+
+bookings.forEach((b,i)=>{
+if(b.tech==u.phone){
+total+=b.amount;
+
+html+=`<tr>
+<td>${b.name}</td>
+<td>${b.service}</td>
+<td>${b.amount}</td>
+<td><button onclick="pdf(${i})">PDF</button></td>
+</tr>`;
+}
+});
+
+earn.innerText=total;
+myjobs.innerHTML=html;
+}
+
+// PDF BILL
+function pdf(i){
+let b=bookings[i];
+
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+
+doc.text("FixEasy Bill",20,20);
+doc.text("Name: "+b.name,20,40);
+doc.text("Phone: "+b.phone,20,50);
+doc.text("Service: "+b.service,20,60);
+doc.text("Amount: ₹"+b.amount,20,70);
+doc.text("Date: "+b.date,20,80);
+doc.text("Warranty: "+b.warranty,20,90);
+
+doc.save("bill.pdf");
+}
+
+</script>
+
+</body>
+</html>
