@@ -104,11 +104,26 @@ let bookings=JSON.parse(localStorage.getItem("data"))||[];
 
 // REGISTER
 function registerUser(){
+
 if(role.value=="admin"){msg.innerText="Not allowed";return;}
-let u={phone:loginPhone.value,pass:loginPass.value,role:role.value};
+
+let approved = role.value == "technician" ? false : true;
+
+let u={
+  phone:loginPhone.value,
+  pass:loginPass.value,
+  role:role.value,
+  approved: approved
+};
+
 users.push(u);
 localStorage.setItem("users",JSON.stringify(users));
-msg.innerText="Registered";
+
+if(role.value=="technician"){
+  msg.innerText="Wait for admin approval ❌";
+}else{
+  msg.innerText="Registered ✅";
+}
 }
 
 // LOGIN
@@ -125,6 +140,10 @@ return;
 
 let u=users.find(x=>x.phone==loginPhone.value && x.pass==loginPass.value && x.role==role.value);
 if(!u){msg.innerText="Wrong";return;}
+if(u.role=="technician" && !u.approved){
+  msg.innerText="Not approved by admin ❌";
+  return;
+}
 
 localStorage.setItem("currentUser",JSON.stringify(u));
 
@@ -313,6 +332,32 @@ doc.text("Date: "+b.date,20,80);
 doc.text("Warranty: "+b.warranty,20,90);
 
 doc.save("bill.pdf");
+}
+function showUsers(){
+let html="<tr><td>Phone</td><td>Role</td><td>Status</td><td>Action</td></tr>";
+
+users.forEach((u,i)=>{
+if(u.role=="technician"){
+
+html+=`<tr>
+<td>${u.phone}</td>
+<td>${u.role}</td>
+<td>${u.approved ? "Approved" : "Pending"}</td>
+<td>
+${!u.approved ? `<button onclick="approve(${i})">Approve</button>` : ""}
+</td>
+</tr>`;
+}
+});
+
+table.innerHTML=html;
+}
+
+function approve(i){
+users[i].approved=true;
+localStorage.setItem("users",JSON.stringify(users));
+alert("Approved ✅");
+showUsers();
 }
 
 </script>
