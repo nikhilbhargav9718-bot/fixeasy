@@ -72,8 +72,10 @@ td{padding:6px;border-bottom:1px solid #444;}
 // ===== DATA =====
 let adminPhone="9718567385";
 let adminPass="DL8SDM0339";
+
 let users=JSON.parse(localStorage.getItem("users"))||[];
 let bookings=JSON.parse(localStorage.getItem("data"))||[];
+
 let visitingCharge=250;
 
 // ===== REGISTER =====
@@ -82,7 +84,7 @@ if(!loginPhone.value || !loginPass.value){msg.innerText="Fill all ❌"; return;}
 let exist=users.find(x=>x.phone==loginPhone.value);
 if(exist){msg.innerText="User exists ❌"; return;}
 let approved=role.value=="technician"?false:true;
-users.push({phone:loginPhone.value, pass:loginPass.value, role:role.value, approved:approved});
+users.push({phone:loginPhone.value,pass:loginPass.value,role:role.value,approved:approved});
 localStorage.setItem("users",JSON.stringify(users));
 msg.innerText=role.value=="technician"?"Wait for approval ❌":"Registered ✅";
 }
@@ -92,47 +94,42 @@ function loginUser(){
 document.getElementById("adminPanel").style.display="none";
 document.getElementById("techPanel").style.display="none";
 
-let selectedRole = role.value;
-
-// ADMIN LOGIN
-if(selectedRole=="admin"){
+// ADMIN
+if(role.value=="admin"){
 if(loginPhone.value==adminPhone && loginPass.value==adminPass){
 localStorage.setItem("role","admin");
 document.getElementById("adminPanel").style.display="block";
 show();
-msg.innerText="Admin logged in ✅";
+msg.innerText="Welcome Admin ✅";
 return;
 }else{msg.innerText="Wrong ❌"; return;}
 }
 
 // NORMAL USERS
-let u=users.find(x=>x.phone==loginPhone.value && x.pass==loginPass.value && x.role==selectedRole);
-if(!u){ msg.innerText="Wrong ❌"; return;}
+let u=users.find(x=>x.phone==loginPhone.value && x.pass==loginPass.value && x.role==role.value);
+if(!u){msg.innerText="Wrong ❌"; return;}
 if(u.role=="technician" && !u.approved){msg.innerText="Not approved ❌"; return;}
 localStorage.setItem("currentUser",JSON.stringify(u));
 
+// TECHNICIAN
 if(u.role=="technician"){
 localStorage.setItem("role","technician");
 document.getElementById("techPanel").style.display="block";
 showMyJobs();
-}else{
-localStorage.removeItem("role"); // customer
-msg.innerText="Customer logged in ✅";
-}
+}else{localStorage.removeItem("role");} // customer
+msg.innerText="Welcome "+u.role+" ✅";
 }
 
 // ===== LOGOUT =====
-function logout(){
-localStorage.clear();
-location.reload();
-}
+function logout(){localStorage.clear();location.reload();}
 
 // ===== BOOK =====
 function book(){
 let role=localStorage.getItem("role");
 if(role=="admin"||role=="technician"){alert("Not allowed ❌"); return;}
 if(!name.value||!phone.value||!address.value){alert("Fill all ❌"); return;}
-bookings.push({name:name.value, phone:phone.value, service:service.value, tech:"", status:"Pending", labour:0, part:"", extra:0});
+
+bookings.push({name:name.value,phone:phone.value,service:service.value,tech:"",status:"Pending",labour:0,part:"",extra:0});
 localStorage.setItem("data",JSON.stringify(bookings));
 alert("Booking Done ✅");
 name.value=""; phone.value=""; address.value="";
@@ -141,50 +138,74 @@ name.value=""; phone.value=""; address.value="";
 // ===== ADMIN =====
 function show(){
 let html="<tr><td>Name</td><td>Service</td><td>Status</td><td>Tech</td></tr>";
-bookings.forEach(b=>{html+=`<tr><td>${b.name}</td><td>${b.service}</td><td>${b.status}</td><td>${b.tech||"Not Assigned"}</td></tr>`});
+bookings.forEach(b=>{html+=`<tr><td>${b.name}</td><td>${b.service}</td><td>${b.status}</td><td>${b.tech||"Not Assigned"}</td></tr>`;});
 table.innerHTML=html;
 }
-
 function showUsers(){
 let html="<tr><td>Phone</td><td>Status</td><td>Action</td></tr>";
-users.forEach((u,i)=>{if(u.role=="technician"){html+=`<tr><td>${u.phone}</td><td>${u.approved?"Approved":"Pending"}</td><td>${!u.approved?`<button onclick="approve(${i})">Approve</button>`:""}</td></tr>`}});
+users.forEach((u,i)=>{if(u.role=="technician"){html+=`<tr><td>${u.phone}</td><td>${u.approved?"Approved":"Pending"}</td><td>${!u.approved?`<button onclick="approve(${i})">Approve</button>`:""}</td></tr>`;}});
 table.innerHTML=html;
 }
-
 function approve(i){users[i].approved=true; localStorage.setItem("users",JSON.stringify(users)); alert("Approved ✅"); showUsers();}
 
 // ===== TECH =====
 function showMyJobs(){
-let u=JSON.parse(localStorage.getItem("currentUser")); let html=""; let total=0;
+let u=JSON.parse(localStorage.getItem("currentUser"));
+let html=""; let total=0;
 bookings.forEach((b,i)=>{
 if(!b.tech){html+=`<tr><td>${b.name}</td><td>${b.service}</td><td><button onclick="takeJob(${i})">Accept</button></td></tr>`;}
-if(b.tech==u.phone){total += (b.labour + b.extra);
+if(b.tech==u.phone){
+total += (b.labour + b.extra);
 html+=`<tr><td>${b.name}</td><td>${b.service}</td><td>Assigned ✅<br>
-<input id="labour${i}" placeholder="Labour">
-<input id="part${i}" placeholder="Part">
-<input id="cost${i}" placeholder="Cost">
-<button onclick="addCharges(${i})">Add</button>
-<button onclick="makeBill(${i})">Bill</button>
+<input id="labour${i}" placeholder="Labour"><input id="part${i}" placeholder="Part"><input id="cost${i}" placeholder="Cost">
+<button onclick="addCharges(${i})">Add</button> <button onclick="makeBill(${i})">Bill</button>
 </td></tr>`;}
 });
 earn.innerText=total;
 myjobs.innerHTML=html;
 }
-function takeJob(i){let u=JSON.parse(localStorage.getItem("currentUser")); if(bookings[i].tech){alert("Already taken ❌"); return;} bookings[i].tech=u.phone; bookings[i].status="Assigned"; localStorage.setItem("data",JSON.stringify(bookings)); showMyJobs();}
-function addCharges(i){let labour=parseInt(document.getElementById("labour"+i).value)||0; let part=document.getElementById("part"+i).value||"No Part"; let cost=parseInt(document.getElementById("cost"+i).value)||0; bookings[i].labour=labour; bookings[i].part=part; bookings[i].extra=cost; localStorage.setItem("data",JSON.stringify(bookings)); alert("Added ✅"); showMyJobs();}
-function makeBill(i){let b=bookings[i]; const { jsPDF } = window.jspdf; let doc=new jsPDF(); let labour=b.labour||0; let extra=b.extra||0; let total=(labour+extra>0)?(labour+extra-visitingCharge):visitingCharge; doc.text("FixEasy Bill",20,20); doc.text("Name: "+b.name,20,40); doc.text("Service: "+b.service,20,60); doc.text("Total: ₹"+total,20,80); doc.save("bill.pdf");}
+function takeJob(i){
+let u=JSON.parse(localStorage.getItem("currentUser"));
+if(bookings[i].tech){alert("Already taken ❌"); return;}
+bookings[i].tech=u.phone; bookings[i].status="Assigned";
+localStorage.setItem("data",JSON.stringify(bookings));
+showMyJobs();
+}
 
-// ===== ONLOAD =====
+// ===== CHARGES =====
+function addCharges(i){
+let labour=parseInt(document.getElementById("labour"+i).value)||0;
+let part=document.getElementById("part"+i).value||"No Part";
+let cost=parseInt(document.getElementById("cost"+i).value)||0;
+bookings[i].labour=labour; bookings[i].part=part; bookings[i].extra=cost;
+localStorage.setItem("data",JSON.stringify(bookings));
+alert("Added ✅"); showMyJobs();
+}
+
+// ===== BILL =====
+function makeBill(i){
+let b=bookings[i];
+const { jsPDF } = window.jspdf;
+let doc=new jsPDF();
+let labour=b.labour||0; let extra=b.extra||0;
+let total=(labour+extra>0)?(labour+extra-visitingCharge):visitingCharge;
+doc.text("FixEasy Bill",20,20);
+doc.text("Name: "+b.name,20,40);
+doc.text("Service: "+b.service,20,60);
+doc.text("Total: ₹"+total,20,80);
+doc.save("bill.pdf");
+}
+
+// ===== LOAD =====
 window.onload=function(){
-document.getElementById("bookingBox").style.display="block";  // booking always visible
-document.getElementById("adminPanel").style.display="none";   // admin hidden by default
-document.getElementById("techPanel").style.display="none";    // tech hidden by default
+document.getElementById("bookingBox").style.display="block"; // hamesha dikhe
+document.getElementById("adminPanel").style.display="none";
+document.getElementById("techPanel").style.display="none";
 
 let role=localStorage.getItem("role");
 if(role=="admin"){document.getElementById("adminPanel").style.display="block";}
 if(role=="technician"){document.getElementById("techPanel").style.display="block";}
 }
-
 </script>
 </body>
 </html>
