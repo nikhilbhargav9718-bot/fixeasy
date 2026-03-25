@@ -64,7 +64,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 </div>
 
 <!-- ADMIN -->
-<div class="box admin" id="adminPanel">
+<div class="box admin" id="adminPanel" style="display:none;">
 <h3>👑 Admin Panel</h3>
 <button onclick="show()">Show Bookings</button>
 <button onclick="showUsers()">Show Technicians</button>
@@ -72,7 +72,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 </div>
 
 <!-- TECH -->
-<div class="box admin" id="techPanel">
+<div class="box admin" id="techPanel" style="display:none;">
 <h3>👨‍🔧 Technician Panel</h3>
 <h3>Total Earnings: ₹<span id="earn">0</span></h3>
 <table id="myjobs"></table>
@@ -117,18 +117,17 @@ msg.innerText=role.value=="technician"?"Wait for approval ❌":"Registered ✅";
 // ===== LOGIN =====
 function loginUser(){
 
-adminPanel.style.display="none";
-techPanel.style.display="none";
+// FORCE HIDE SAB PANEL
+document.getElementById("adminPanel").style.display="none";
+document.getElementById("techPanel").style.display="none";
 
-// ADMIN
+// ADMIN LOGIN
 if(role.value=="admin"){
 if(loginPhone.value==adminPhone && loginPass.value==adminPass){
-
 localStorage.setItem("role","admin");
-adminPanel.style.display="block";
+document.getElementById("adminPanel").style.display="block";
 show();
 return;
-
 }else{
 msg.innerText="Wrong ❌"; return;
 }
@@ -148,7 +147,7 @@ localStorage.setItem("currentUser",JSON.stringify(u));
 // TECH
 if(u.role=="technician"){
 localStorage.setItem("role","technician");
-techPanel.style.display="block";
+document.getElementById("techPanel").style.display="block";
 showMyJobs();
 }else{
 localStorage.removeItem("role"); // customer
@@ -338,20 +337,23 @@ doc.save("bill.pdf");
 // ===== LOAD =====
 window.onload=function(){
 
-// default: show booking
-bookingBox.style.display="block";
+// 🔴 FORCE HIDE PANEL
+document.getElementById("adminPanel").style.display="none";
+document.getElementById("techPanel").style.display="none";
 
-// hide panels
-adminPanel.style.display="none";
-techPanel.style.display="none";
+// booking hamesha dikhe
+document.getElementById("bookingBox").style.display="block";
 
 let role=localStorage.getItem("role");
 
+// ADMIN LOGIN KE BAAD HI
 if(role=="admin"){
-adminPanel.style.display="block";
+document.getElementById("adminPanel").style.display="block";
 }
+
+// TECH LOGIN KE BAAD HI
 if(role=="technician"){
-techPanel.style.display="block";
+document.getElementById("techPanel").style.display="block";
 }
 
 }
