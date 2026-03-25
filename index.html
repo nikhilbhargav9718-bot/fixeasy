@@ -10,7 +10,6 @@
         *{margin:0;padding:0;box-sizing:border-box;}
         body{font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;background:linear-gradient(135deg,#0f172a 0%,#1e293b 100%);color:#f1f5f9;min-height:100vh;}
         
-        /* Header */
         .header{position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg,#020617,#1e293b);box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:1000;padding:1rem 0;}
         .nav{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;}
         .logo{font-size:1.8rem;font-weight:bold;background:linear-gradient(45deg,#22c55e,#4ade80);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
@@ -20,13 +19,11 @@
         .btn-secondary{background:transparent;color:white;border:2px solid #475569;}
         .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.3);}
         
-        /* Main Content */
         .main-content{padding-top:100px;padding-bottom:2rem;max-width:1200px;margin:0 auto;padding-left:2rem;padding-right:2rem;}
         .hero{text-align:center;padding:3rem 0;}
         .hero h1{font-size:3rem;margin-bottom:1rem;background:linear-gradient(45deg,#f1f5f9,#e2e8f0);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
         .hero p{font-size:1.3rem;color:#94a3b8;margin-bottom:2rem;max-width:600px;margin-left:auto;margin-right:auto;}
         
-        /* Cards */
         .card{background:linear-gradient(145deg,#1e293b,#334155);margin:1.5rem 0;padding:2rem;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);}
         .card h3{font-size:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;color:#22c55e;}
         .form-group{margin-bottom:1.5rem;}
@@ -36,10 +33,8 @@
         input::placeholder{color:#64748b;}
         input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear {display: none;}
         
-        /* Buttons Grid */
         .btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem;}
         
-        /* Table */
         .table-container{max-height:400px;overflow-y:auto;margin-top:1.5rem;}
         table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;}
         th,td{padding:1rem;text-align:left;border-bottom:1px solid rgba(255,255,255,0.1);}
@@ -49,13 +44,12 @@
         .status-pending{background:#f59e0b;color:white;}
         .status-assigned{background:#3b82f6;color:white;}
         .status-approved{background:#10b981;color:white;}
+        .status-completed{background:#8b5cf6;color:white;}
         
-        /* Stats */
         .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin:2rem 0;}
         .stat-card{background:linear-gradient(145deg,#22c55e,#16a34a);padding:1.5rem;border-radius:15px;text-align:center;}
         .stat-number{font-size:2rem;font-weight:bold;}
         
-        /* Responsive */
         @media (max-width:768px){
             .nav{padding:0 1rem;}
             .hero h1{font-size:2rem;}
@@ -63,18 +57,17 @@
             .card{padding:1.5rem;}
         }
         
-        /* Animations */
         @keyframes fadeInUp{from{opacity:0;transform:translateY(30px);}to{opacity:1;transform:translateY(0);}}
         .card{animation:fadeInUp 0.6s ease forwards;}
         
-        /* Hidden */
         .hidden{display:none !important;}
         .admin{display:none;}
+        .success{color:#10b981;}
+        .error{color:#ef4444;}
     </style>
 </head>
 
 <body>
-    <!-- Header -->
     <header class="header">
         <nav class="nav">
             <div class="logo">
@@ -91,9 +84,7 @@
         </nav>
     </header>
 
-    <!-- Main Content -->
     <main class="main-content">
-        <!-- Hero Section -->
         <section class="hero">
             <h1>🔧 Professional Repair Services</h1>
             <p>Trusted AC, Fridge, Washing Machine & Geyser Repair Service. Fast booking, verified technicians, instant billing.</p>
@@ -113,7 +104,6 @@
             </div>
         </section>
 
-        <!-- Login Card -->
         <div class="card" id="loginCard">
             <h3><i class="fas fa-user-shield"></i> Secure Login</h3>
             <div class="form-group">
@@ -146,20 +136,21 @@
             <p id="msg" style="margin-top:1rem;text-align:center;"></p>
         </div>
 
-        <!-- Booking Card -->
+        <!-- ✅ CUSTOMER NAME FIELD ADDED -->
         <div class="card" id="bookingCard">
             <h3><i class="fas fa-calendar-plus"></i> Book Service</h3>
             <div class="form-group">
-                <label><i class="fas fa-user"></i> Name</label>
-                <input id="name" placeholder="Full name">
+                <label><i class="fas fa-user"></i> 👤 Customer Name *</label>
+                <input id="customerName" placeholder="Enter your full name" required>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-phone"></i> Phone</label>
-                <input id="phone" type="tel" placeholder="Phone number">
+                <label><i class="fas fa-phone"></i> 📱 Phone Number *</label>
+                <input id="phone" type="tel" placeholder="Phone number" required>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-cogs"></i> Service</label>
-                <select id="service">
+                <label><i class="fas fa-cogs"></i> 🔧 Service Type *</label>
+                <select id="service" required>
+                    <option value="">Select Service</option>
                     <option value="AC Repair">❄️ AC Repair</option>
                     <option value="AC Gas Filling">⛽ AC Gas Filling</option>
                     <option value="Fridge Repair">🧊 Fridge Repair</option>
@@ -168,8 +159,8 @@
                 </select>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-map-marker-alt"></i> Address</label>
-                <input id="address" placeholder="Complete address">
+                <label><i class="fas fa-map-marker-alt"></i> 📍 Address *</label>
+                <input id="address" placeholder="Complete address with landmark" required>
             </div>
             <button class="btn btn-primary" style="width:100%;font-size:1.1rem;" onclick="book()">
                 <i class="fas fa-paper-plane"></i> Book Now
@@ -179,7 +170,6 @@
             </p>
         </div>
 
-        <!-- Admin Panel -->
         <div class="card admin hidden" id="adminPanel">
             <h3><i class="fas fa-crown"></i> Admin Dashboard</h3>
             <div class="btn-grid">
@@ -187,7 +177,7 @@
                     <i class="fas fa-list"></i> All Bookings
                 </button>
                 <button class="btn btn-secondary" onclick="showUsers()">
-                    <i class="fas fa-users"></i> Technicians
+                    <i class="fas fa-users"></i> All Users
                 </button>
             </div>
             <div class="table-container">
@@ -195,7 +185,6 @@
             </div>
         </div>
 
-        <!-- Technician Panel -->
         <div class="card admin hidden" id="techPanel">
             <h3><i class="fas fa-hard-hat"></i> Technician Dashboard</h3>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
@@ -211,48 +200,157 @@
     </main>
 
     <script>
-        // Same functions as before but with improvements...
-        // [Previous script code with minor enhancements for professional look]
-        
-        let adminPhone="9718567385";
-        let adminPass="DL8SDM0339";
-        let users=JSON.parse(localStorage.getItem("users"))||[];
-        let bookings=JSON.parse(localStorage.getItem("data"))||[];
-        let visitingCharge=250;
+        // ✅ COMPLETE JAVASCRIPT WITH CUSTOMER NAME SUPPORT
+        let adminPhone = "9718567385";
+        let adminPass = "DL8SDM0339";
+        let users = JSON.parse(localStorage.getItem("users")) || [];
+        let bookings = JSON.parse(localStorage.getItem("data")) || [];
+        let visitingCharge = 250;
 
-        // All previous functions remain same...
-        // Just add these new helper functions:
+        function showMsg(text, type = "") {
+            let msg = document.getElementById("msg");
+            msg.textContent = text;
+            msg.className = type;
+            setTimeout(() => msg.textContent = "", 3000);
+        }
 
-        function scrollToLogin(){document.getElementById('loginCard').scrollIntoView({behavior:'smooth'});}
-        function scrollToBooking(){document.getElementById('bookingCard').scrollIntoView({behavior:'smooth'});}
+        function scrollToLogin() {
+            document.getElementById('loginCard').scrollIntoView({ behavior: 'smooth' });
+        }
 
-        // Update total bookings counter
-        function updateStats(){
+        function scrollToBooking() {
+            document.getElementById('bookingCard').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function updateStats() {
             document.getElementById('totalBookings').textContent = bookings.length;
         }
 
-        // Initialize
-        window.onload = function(){
-            updateStats();
-            document.getElementById("bookingCard").style.display = "block";
-            document.getElementById("adminPanel").classList.add("hidden");
-            document.getElementById("techPanel").classList.add("hidden");
-            
-            let currentRole = localStorage.getItem("role");
-            let currentUser = localStorage.getItem("currentUser");
-            
-            if(currentRole == "admin" && currentUser){
+        function loginUser() {
+            let role = document.getElementById('role').value;
+            let phone = document.getElementById('loginPhone').value;
+            let pass = document.getElementById('loginPass').value;
+
+            if (!phone || !pass) {
+                showMsg("Please enter phone and password", "error");
+                return;
+            }
+
+            if (role === "admin" && phone === adminPhone && pass === adminPass) {
+                localStorage.setItem("role", "admin");
+                localStorage.setItem("currentUser", phone);
+                showMsg("Admin login successful! 👑", "success");
                 document.getElementById("adminPanel").classList.remove("hidden");
                 showBookings();
+                return;
             }
-            else if(currentRole == "technician" && currentUser){
-                document.getElementById("techPanel").classList.remove("hidden");
-                showMyJobs();
+
+            let user = users.find(u => u.phone === phone && u.role === role);
+            if (user && user.pass === pass) {
+                localStorage.setItem("role", role);
+                localStorage.setItem("currentUser", phone);
+                showMsg(`Welcome ${user.name}!`, "success");
+                
+                if (role === "technician") {
+                    document.getElementById("techPanel").classList.remove("hidden");
+                    showMyJobs();
+                }
+            } else {
+                showMsg("Invalid credentials!", "error");
             }
         }
 
-        // [Include all previous functions here - loginUser, book, showBookings, etc.]
-        // For brevity, they remain exactly the same as in previous version
-    </script>
-</body>
-</html>
+        function registerUser() {
+            let role = document.getElementById('role').value;
+            let phone = document.getElementById('loginPhone').value;
+            let pass = document.getElementById('loginPass').value;
+
+            if (users.find(u => u.phone === phone)) {
+                showMsg("Phone already registered!", "error");
+                return;
+            }
+
+            let name = prompt("Enter your full name:");
+            if (!name || !phone || !pass) {
+                showMsg("All fields required!", "error");
+                return;
+            }
+
+            users.push({ name, phone, pass, role });
+            localStorage.setItem("users", JSON.stringify(users));
+            showMsg("✅ Registered successfully! Now login.", "success");
+        }
+
+        // ✅ BOOKING FUNCTION WITH CUSTOMER NAME
+        function book() {
+            let name = document.getElementById('customerName').value;
+            let phone = document.getElementById('phone').value;
+            let service = document.getElementById('service').value;
+            let address = document.getElementById('address').value;
+
+            if (!name || !phone || !service || !address) {
+                showMsg("Please fill all fields! 👆", "error");
+                return;
+            }
+
+            let booking = {
+                id: "B" + Date.now().toString().slice(-6),
+                customerName: name,
+                phone: phone,
+                service: service,
+                address: address,
+                date: new Date().toLocaleString('en-IN'),
+                status: "pending"
+            };
+
+            bookings.unshift(booking);
+            localStorage.setItem("data", JSON.stringify(bookings));
+            updateStats();
+
+            document.getElementById('customerName').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('service').value = '';
+            document.getElementById('address').value = '';
+
+            showMsg(`✅ Booking confirmed for ${name}! ID: ${booking.id}`, "success");
+        }
+
+        function showBookings() {
+            let table = document.getElementById('table');
+            if (bookings.length === 0) {
+                table.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">No bookings yet</td></tr>';
+                return;
+            }
+
+            table.innerHTML = bookings.map(booking => `
+                <tr>
+                    <td>${booking.id}</td>
+                    <td><strong>${booking.customerName}</strong></td>
+                    <td>${booking.phone}</td>
+                    <td>${booking.service}</td>
+                    <td>${booking.address}</td>
+                    <td>${booking.date}</td>
+                    <td><span class="status-badge status-${booking.status}">${booking.status.toUpperCase()}</span></td>
+                    <td>
+                        <button class="btn btn-secondary" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="updateStatus('${booking.id}', 'assigned')">
+                            Assign
+                        </button>
+                        <button class="btn btn-primary" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="updateStatus('${booking.id}', 'approved')">
+                            Approve
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function showUsers() {
+            let table = document.getElementById('table');
+            if (users.length === 0) {
+                table.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">No users</td></tr>';
+                return;
+            }
+
+            table.innerHTML = `
+                <thead>
+                    <tr><th>Name</th><th>Phone</
+                    
