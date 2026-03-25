@@ -50,7 +50,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 </div>
 </div>
 
-<div class="box">
+<div class="box" id="bookingBox">
 <h3>📲 Book Service</h3>
 <input id="name" placeholder="Name">
 <input id="phone" placeholder="Phone">
@@ -130,6 +130,8 @@ if(role.value=="technician"){
 function loginUser(){
 techPassBox.style.display="none";
 
+localStorage.setItem("role", role.value);
+
 if(role.value=="admin"){
 if(loginPhone.value==adminPhone && loginPass.value==adminPass){
 adminPanel.style.display="block";
@@ -174,6 +176,7 @@ alert("Changed");
 }
 
 // BOOK
+
 function book(){
 navigator.geolocation.getCurrentPosition(pos=>{
 
@@ -359,6 +362,29 @@ localStorage.setItem("users",JSON.stringify(users));
 alert("Approved ✅");
 showUsers();
 }
+
+window.onload = function () {
+
+let role = localStorage.getItem("role");
+
+// booking hide for admin & technician
+if (role !== "customer") {
+  document.getElementById("bookingBox").style.display = "none";
+}
+
+// admin panel only for admin
+if (role === "admin") {
+  adminPanel.style.display = "block";
+  show();
+}
+
+// technician panel only for technician
+if (role === "technician") {
+  techPanel.style.display = "block";
+  showMyJobs();
+}
+
+};
 
 </script>
 
