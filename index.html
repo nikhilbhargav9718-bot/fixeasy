@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>FixEasy Pro</title>
+<title>FixEasy Final</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -20,12 +20,9 @@ td{padding:6px;border-bottom:1px solid #444;}
 
 <body>
 
-<header>🔧 FixEasy Pro</header>
+<header>🔧 FixEasy Final</header>
 
-<div id="notify" style="display:none;background:#22c55e;padding:10px;text-align:center;">
-🔔 New Booking Available
-</div>
-
+<!-- LOGIN -->
 <div class="box">
 <h3>🔐 Login</h3>
 
@@ -45,6 +42,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 <p id="msg"></p>
 </div>
 
+<!-- BOOKING -->
 <div class="box" id="bookingBox">
 <h3>📲 Book Service</h3>
 
@@ -65,11 +63,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 <p>₹250 Visiting Charge</p>
 </div>
 
-<div class="box">
-<h3>📜 My Bookings</h3>
-<table id="history"></table>
-</div>
-
+<!-- ADMIN -->
 <div class="box admin" id="adminPanel">
 <h3>👑 Admin Panel</h3>
 <button onclick="show()">Show Bookings</button>
@@ -77,6 +71,7 @@ td{padding:6px;border-bottom:1px solid #444;}
 <table id="table"></table>
 </div>
 
+<!-- TECH -->
 <div class="box admin" id="techPanel">
 <h3>👨‍🔧 Technician Panel</h3>
 <h3>Total Earnings: ₹<span id="earn">0</span></h3>
@@ -96,7 +91,6 @@ let visitingCharge=250;
 
 // ===== REGISTER =====
 function registerUser(){
-
 if(!loginPhone.value || !loginPass.value){
 msg.innerText="Fill all ❌"; return;
 }
@@ -123,25 +117,24 @@ msg.innerText=role.value=="technician"?"Wait for approval ❌":"Registered ✅";
 // ===== LOGIN =====
 function loginUser(){
 
-// hide all first
 adminPanel.style.display="none";
 techPanel.style.display="none";
-bookingBox.style.display="none";
 
+// ADMIN
 if(role.value=="admin"){
 if(loginPhone.value==adminPhone && loginPass.value==adminPass){
 
 localStorage.setItem("role","admin");
-
 adminPanel.style.display="block";
 show();
-
 return;
+
 }else{
 msg.innerText="Wrong ❌"; return;
 }
 }
 
+// NORMAL USERS
 let u=users.find(x=>x.phone==loginPhone.value && x.pass==loginPass.value && x.role==role.value);
 
 if(!u){ msg.innerText="Wrong ❌"; return; }
@@ -152,14 +145,15 @@ msg.innerText="Not approved ❌"; return;
 
 localStorage.setItem("currentUser",JSON.stringify(u));
 
+// TECH
 if(u.role=="technician"){
 localStorage.setItem("role","technician");
 techPanel.style.display="block";
 showMyJobs();
 }else{
-localStorage.removeItem("role");
-bookingBox.style.display="block";
+localStorage.removeItem("role"); // customer
 }
+
 }
 
 // ===== LOGOUT =====
@@ -185,7 +179,6 @@ bookings.push({
 name:name.value,
 phone:phone.value,
 service:service.value,
-amount:500,
 tech:"",
 status:"Pending",
 labour:0,
@@ -195,23 +188,9 @@ extra:0
 
 localStorage.setItem("data",JSON.stringify(bookings));
 
-showNotification();
-showHistory();
+alert("Booking Done ✅");
 
 name.value=""; phone.value=""; address.value="";
-}
-
-// ===== HISTORY =====
-function showHistory(){
-let html="<tr><td>Service</td><td>Status</td></tr>";
-
-bookings.forEach(b=>{
-if(b.phone==phone.value){
-html+=`<tr><td>${b.service}</td><td>${b.status}</td></tr>`;
-}
-});
-
-history.innerHTML=html;
 }
 
 // ===== ADMIN =====
@@ -286,7 +265,6 @@ Assigned ✅<br>
 
 <button onclick="addCharges(${i})">Add</button>
 <button onclick="makeBill(${i})">Bill</button>
-
 </td>
 </tr>`;
 }
@@ -320,10 +298,6 @@ let labour=parseInt(document.getElementById("labour"+i).value)||0;
 let part=document.getElementById("part"+i).value||"No Part";
 let cost=parseInt(document.getElementById("cost"+i).value)||0;
 
-if(labour==0 && cost==0){
-alert("Enter charges ❌"); return;
-}
-
 bookings[i].labour=labour;
 bookings[i].part=part;
 bookings[i].extra=cost;
@@ -344,7 +318,6 @@ let doc=new jsPDF();
 
 let labour=b.labour||0;
 let extra=b.extra||0;
-let part=b.part||"No Part";
 
 let total;
 
@@ -354,63 +327,31 @@ total = labour + extra - visitingCharge;
 total = visitingCharge;
 }
 
-if(total<0){ total=0; }
-
-doc.text("FixEasy Service Bill",20,20);
-
+doc.text("FixEasy Bill",20,20);
 doc.text("Name: "+b.name,20,40);
-doc.text("Phone: "+b.phone,20,50);
 doc.text("Service: "+b.service,20,60);
+doc.text("Total: ₹"+total,20,80);
 
-doc.text("Labour: ₹"+labour,20,80);
-doc.text("Part: "+part,20,90);
-doc.text("Part Cost: ₹"+extra,20,100);
-
-doc.text("Visiting Adjust: -₹250",20,110);
-
-doc.text("Total: ₹"+total,20,130);
-
-doc.text("Technician: "+(b.tech||"N/A"),20,150);
-doc.text("Date: "+new Date().toLocaleDateString(),20,160);
-
-doc.save("FixEasy_Bill.pdf");
+doc.save("bill.pdf");
 }
-
-// ===== NOTIFICATION =====
-function showNotification(){
-let n=document.getElementById("notify");
-n.style.display="block";
-setTimeout(()=>{n.style.display="none";},3000);
-}
-
-// ===== AUTO UPDATE =====
-setInterval(()=>{
-let role=localStorage.getItem("role");
-
-if(role=="technician"){ showMyJobs(); }
-if(role=="admin"){ show(); }
-
-},3000);
 
 // ===== LOAD =====
 window.onload=function(){
 
+// default: show booking
+bookingBox.style.display="block";
+
+// hide panels
 adminPanel.style.display="none";
 techPanel.style.display="none";
-bookingBox.style.display="none";
 
 let role=localStorage.getItem("role");
 
 if(role=="admin"){
 adminPanel.style.display="block";
-show();
 }
-else if(role=="technician"){
+if(role=="technician"){
 techPanel.style.display="block";
-showMyJobs();
-}
-else{
-bookingBox.style.display="block";
 }
 
 }
