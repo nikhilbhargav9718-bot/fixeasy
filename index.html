@@ -367,18 +367,20 @@ window.onload = function () {
 
 let role = localStorage.getItem("role");
 
-// booking hide for admin & technician
-if (role !== "customer") {
+// ✅ hide only for admin & technician
+if (role === "admin" || role === "technician") {
   document.getElementById("bookingBox").style.display = "none";
+} else {
+  document.getElementById("bookingBox").style.display = "block";
 }
 
-// admin panel only for admin
+// admin panel
 if (role === "admin") {
   adminPanel.style.display = "block";
   show();
 }
 
-// technician panel only for technician
+// technician panel
 if (role === "technician") {
   techPanel.style.display = "block";
   showMyJobs();
