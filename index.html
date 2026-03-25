@@ -18,6 +18,7 @@
         .btn-primary{background:linear-gradient(45deg,#22c55e,#16a34a);color:white;box-shadow:0 4px 15px rgba(34,197,94,0.4);}
         .btn-secondary{background:transparent;color:white;border:2px solid #475569;}
         .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.3);}
+        .btn-small{padding:0.3rem 0.8rem;font-size:0.8rem;}
         
         .main-content{padding-top:100px;padding-bottom:2rem;max-width:1200px;margin:0 auto;padding-left:2rem;padding-right:2rem;}
         .hero{text-align:center;padding:3rem 0;}
@@ -34,6 +35,8 @@
         input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear {display: none;}
         
         .btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem;}
+        .user-info{display:flex;align-items:center;gap:1rem;background:rgba(34,197,94,0.2);padding:1rem;border-radius:12px;margin:1rem 0;}
+        .user-info i{font-size:1.5rem;}
         
         .table-container{max-height:400px;overflow-y:auto;margin-top:1.5rem;}
         table{width:100%;border-collapse:collapse;background:rgba(255,255,255,0.05);border-radius:12px;overflow:hidden;}
@@ -74,6 +77,9 @@
                 <i class="fas fa-tools"></i> FixEasy
             </div>
             <div class="header-buttons">
+                <div id="userWelcome" class="hidden" style="color:white;font-weight:600;">
+                    <i class="fas fa-user"></i> Welcome, <span id="currentUserName"></span>!
+                </div>
                 <button class="btn btn-secondary" onclick="scrollToLogin()">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
@@ -136,7 +142,6 @@
             <p id="msg" style="margin-top:1rem;text-align:center;"></p>
         </div>
 
-        <!-- ✅ CUSTOMER NAME FIELD ADDED -->
         <div class="card" id="bookingCard">
             <h3><i class="fas fa-calendar-plus"></i> Book Service</h3>
             <div class="form-group">
@@ -200,7 +205,7 @@
     </main>
 
     <script>
-        // ✅ COMPLETE JAVASCRIPT WITH CUSTOMER NAME SUPPORT
+        // ✅ COMPLETE FIXED JAVASCRIPT WITH NAMES EVERYWHERE
         let adminPhone = "9718567385";
         let adminPass = "DL8SDM0339";
         let users = JSON.parse(localStorage.getItem("users")) || [];
@@ -226,6 +231,7 @@
             document.getElementById('totalBookings').textContent = bookings.length;
         }
 
+        // ✅ FIXED LOGIN WITH NAME DISPLAY
         function loginUser() {
             let role = document.getElementById('role').value;
             let phone = document.getElementById('loginPhone').value;
@@ -236,20 +242,26 @@
                 return;
             }
 
+            // Admin login
             if (role === "admin" && phone === adminPhone && pass === adminPass) {
                 localStorage.setItem("role", "admin");
                 localStorage.setItem("currentUser", phone);
+                localStorage.setItem("currentUserName", "Admin");
+                showWelcome("Admin");
                 showMsg("Admin login successful! 👑", "success");
                 document.getElementById("adminPanel").classList.remove("hidden");
                 showBookings();
                 return;
             }
 
+            // User login with name
             let user = users.find(u => u.phone === phone && u.role === role);
             if (user && user.pass === pass) {
                 localStorage.setItem("role", role);
                 localStorage.setItem("currentUser", phone);
-                showMsg(`Welcome ${user.name}!`, "success");
+                localStorage.setItem("currentUserName", user.name);
+                showWelcome(user.name);
+                showMsg(`Welcome ${user.name}! ✅`, "success");
                 
                 if (role === "technician") {
                     document.getElementById("techPanel").classList.remove("hidden");
@@ -260,6 +272,23 @@
             }
         }
 
+        // ✅ SHOW WELCOME NAME IN HEADER
+        function showWelcome(name) {
+            document.getElementById('userWelcome').classList.remove('hidden');
+            document.getElementById('currentUserName').textContent = name;
+        }
+
+        function logout() {
+            localStorage.removeItem("role");
+            localStorage.removeItem("currentUser");
+            localStorage.removeItem("currentUserName");
+            document.getElementById('userWelcome').classList.add('hidden');
+            document.getElementById("adminPanel").classList.add("hidden");
+            document.getElementById("techPanel").classList.add("hidden");
+            showMsg("Logged out successfully!", "success");
+        }
+
+        // ✅ FIXED REGISTER WITH NAME
         function registerUser() {
             let role = document.getElementById('role').value;
             let phone = document.getElementById('loginPhone').value;
@@ -281,7 +310,6 @@
             showMsg("✅ Registered successfully! Now login.", "success");
         }
 
-        // ✅ BOOKING FUNCTION WITH CUSTOMER NAME
         function book() {
             let name = document.getElementById('customerName').value;
             let phone = document.getElementById('phone').value;
@@ -315,42 +343,8 @@
             showMsg(`✅ Booking confirmed for ${name}! ID: ${booking.id}`, "success");
         }
 
-        function showBookings() {
-            let table = document.getElementById('table');
-            if (bookings.length === 0) {
-                table.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:2rem;">No bookings yet</td></tr>';
-                return;
-            }
-
-            table.innerHTML = bookings.map(booking => `
-                <tr>
-                    <td>${booking.id}</td>
-                    <td><strong>${booking.customerName}</strong></td>
-                    <td>${booking.phone}</td>
-                    <td>${booking.service}</td>
-                    <td>${booking.address}</td>
-                    <td>${booking.date}</td>
-                    <td><span class="status-badge status-${booking.status}">${booking.status.toUpperCase()}</span></td>
-                    <td>
-                        <button class="btn btn-secondary" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="updateStatus('${booking.id}', 'assigned')">
-                            Assign
-                        </button>
-                        <button class="btn btn-primary" style="padding:0.3rem 0.8rem;font-size:0.8rem;" onclick="updateStatus('${booking.id}', 'approved')">
-                            Approve
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
+        // ✅ FIXED ADMIN PANEL - SHOWS ALL USERS WITH NAMES
         function showUsers() {
             let table = document.getElementById('table');
             if (users.length === 0) {
-                table.innerHTML = '<tr><td colspan="4" style="text-align:center;padding:2rem;">No users</td></tr>';
-                return;
-            }
-
-            table.innerHTML = `
-                <thead>
-                    <tr><th>Name</th><th>Phone</
-                    
+                table.innerHTML
