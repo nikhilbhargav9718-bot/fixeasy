@@ -13,12 +13,12 @@
         .header{position:fixed;top:0;left:0;width:100%;background:linear-gradient(90deg,#020617,#1e293b);box-shadow:0 4px 20px rgba(0,0,0,0.3);z-index:1000;padding:1rem 0;}
         .nav{max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;padding:0 2rem;}
         .logo{font-size:1.8rem;font-weight:bold;background:linear-gradient(45deg,#22c55e,#4ade80);background-clip:text;-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
-        .header-buttons{display:flex;gap:1rem;}
+        .header-buttons{display:flex;gap:1rem;align-items:center;}
         .btn{position:relative;display:inline-block;padding:0.7rem 1.5rem;border-radius:50px;font-weight:600;text-decoration:none;transition:all 0.3s ease;cursor:pointer;border:none;outline:none;overflow:hidden;}
         .btn-primary{background:linear-gradient(45deg,#22c55e,#16a34a);color:white;box-shadow:0 4px 15px rgba(34,197,94,0.4);}
         .btn-secondary{background:transparent;color:white;border:2px solid #475569;}
         .btn:hover{transform:translateY(-2px);box-shadow:0 8px 25px rgba(0,0,0,0.3);}
-        .btn-small{padding:0.3rem 0.8rem;font-size:0.8rem;}
+        .btn-small{padding:0.4rem 1rem;font-size:0.85rem;}
         
         .main-content{padding-top:100px;padding-bottom:2rem;max-width:1200px;margin:0 auto;padding-left:2rem;padding-right:2rem;}
         .hero{text-align:center;padding:3rem 0;}
@@ -27,15 +27,16 @@
         
         .card{background:linear-gradient(145deg,#1e293b,#334155);margin:1.5rem 0;padding:2rem;border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,0.3);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);}
         .card h3{font-size:1.5rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.5rem;color:#22c55e;}
-        .form-group{margin-bottom:1.5rem;position:relative;}
+        .form-group{margin-bottom:1.5rem;}
         .form-group label{display:block;margin-bottom:0.5rem;font-weight:600;color:#94a3b8;}
         input,select{width:100%;padding:1rem;border:2px solid transparent;border-radius:12px;background:rgba(255,255,255,0.1);color:white;font-size:1rem;transition:all 0.3s ease;}
         input:focus,select:focus{outline:none;border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.2);background:rgba(255,255,255,0.15);}
         input::placeholder{color:#64748b;}
-        .password-container{position:relative;}
-        .password-toggle{position:absolute;right:1rem;top:55%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:1.2rem;transition:all 0.3s ease;z-index:10;}
-        .password-toggle:hover{color:#22c55e;}
-        input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear {display: none;}
+        
+        /* ✅ SHOW PASSWORD PERFECT FIX */
+        .password-wrapper{position:relative;}
+        .password-eye{position:absolute;right:12px;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:1.2rem;transition:all 0.3s ease;z-index:5;}
+        .password-eye:hover{color:#22c55e;}
         
         .btn-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1rem;margin-top:1.5rem;}
         .user-info{display:flex;align-items:center;gap:1rem;background:rgba(34,197,94,0.2);padding:1rem;border-radius:12px;margin:1rem 0;}
@@ -70,7 +71,6 @@
         .admin{display:none;}
         .success{color:#10b981;}
         .error{color:#ef4444;}
-        .print-btn{background:#8b5cf6 !important;}
     </style>
 </head>
 
@@ -81,14 +81,14 @@
                 <i class="fas fa-tools"></i> FixEasy
             </div>
             <div class="header-buttons">
-                <div id="userWelcome" class="hidden" style="color:white;font-weight:600;">
+                <div id="userWelcome" class="hidden">
                     <i class="fas fa-user"></i> Welcome, <span id="currentUserName"></span>!
                 </div>
-                <button class="btn btn-secondary" onclick="scrollToLogin()">
-                    <i class="fas fa-sign-in-alt"></i> Login
+                <button class="btn btn-secondary btn-small" onclick="scrollToLogin()">
+                    Login
                 </button>
-                <button class="btn btn-primary" onclick="scrollToBooking()">
-                    <i class="fas fa-calendar-plus"></i> Book Now
+                <button class="btn btn-primary btn-small" onclick="scrollToBooking()">
+                    Book Now
                 </button>
             </div>
         </nav>
@@ -114,11 +114,12 @@
             </div>
         </section>
 
+        <!-- ✅ LOGIN FORM WITH PERFECT SHOW PASSWORD -->
         <div class="card" id="loginCard">
             <h3><i class="fas fa-user-shield"></i> Secure Login</h3>
             <div class="form-group">
                 <label><i class="fas fa-user"></i> Role</label>
-                <select id="role">
+                <select id="roleSelect">
                     <option value="customer">👤 Customer</option>
                     <option value="technician">🔧 Technician</option>
                     <option value="admin">👑 Admin</option>
@@ -126,42 +127,42 @@
             </div>
             <div class="form-group">
                 <label><i class="fas fa-phone"></i> Phone</label>
-                <input id="loginPhone" type="tel" placeholder="Enter phone number">
+                <input id="loginPhone" type="tel" placeholder="Enter 10 digit phone number">
             </div>
             <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <div class="password-container">
-                    <input id="loginPass" type="password" placeholder="Enter password">
-                    <i class="fas fa-eye password-toggle" id="togglePassword" title="Show password"></i>
+                <div class="password-wrapper">
+                    <input id="loginPassword" type="password" placeholder="Enter password">
+                    <i class="fas fa-eye password-eye" id="togglePassword" title="Show Password"></i>
                 </div>
             </div>
             <div class="btn-grid">
-                <button class="btn btn-primary" onclick="loginUser()">
+                <button class="btn btn-primary" onclick="login()">
                     <i class="fas fa-sign-in-alt"></i> Login
                 </button>
-                <button class="btn btn-secondary" onclick="registerUser()">
+                <button class="btn btn-secondary" onclick="register()">
                     <i class="fas fa-user-plus"></i> Register
                 </button>
-                <button class="btn btn-secondary btn-small" onclick="logout()">
+                <button class="btn btn-secondary btn-small" onclick="logoutUser()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
-            <p id="msg" style="margin-top:1rem;text-align:center;"></p>
+            <p id="loginMsg"></p>
         </div>
 
         <div class="card" id="bookingCard">
             <h3><i class="fas fa-calendar-plus"></i> Book Service</h3>
             <div class="form-group">
-                <label><i class="fas fa-user"></i> 👤 Customer Name *</label>
-                <input id="customerName" placeholder="Enter your full name" required>
+                <label>👤 Customer Name *</label>
+                <input id="customerName" placeholder="Enter your full name">
             </div>
             <div class="form-group">
-                <label><i class="fas fa-phone"></i> 📱 Phone Number *</label>
-                <input id="phone" type="tel" placeholder="Phone number" required>
+                <label>📱 Phone Number *</label>
+                <input id="customerPhone" type="tel" placeholder="Phone number">
             </div>
             <div class="form-group">
-                <label><i class="fas fa-cogs"></i> 🔧 Service Type *</label>
-                <select id="service" required>
+                <label>🔧 Service Type *</label>
+                <select id="serviceType">
                     <option value="">Select Service</option>
                     <option value="AC Repair">❄️ AC Repair</option>
                     <option value="AC Gas Filling">⛽ AC Gas Filling</option>
@@ -171,44 +172,44 @@
                 </select>
             </div>
             <div class="form-group">
-                <label><i class="fas fa-map-marker-alt"></i> 📍 Address *</label>
-                <input id="address" placeholder="Complete address with landmark" required>
+                <label>📍 Address *</label>
+                <textarea id="customerAddress" rows="3" placeholder="Complete address with landmark"></textarea>
             </div>
-            <button class="btn btn-primary" style="width:100%;font-size:1.1rem;" onclick="book()">
+            <button class="btn btn-primary" style="width:100%;font-size:1.1rem;padding:1rem;" onclick="bookService()">
                 <i class="fas fa-paper-plane"></i> Book Now
             </button>
             <p style="text-align:center;margin-top:1rem;color:#10b981;font-weight:600;">
-                <i class="fas fa-rupee-sign"></i> 250 Visiting Charge | Instant Confirmation
+                <i class="fas fa-rupee-sign"></i> ₹250 Visiting Charge | Instant Confirmation
             </p>
         </div>
 
         <div class="card admin hidden" id="adminPanel">
-            <h3><i class="fas fa-crown"></i> Admin Dashboard</h3>
+            <h3><i class="fas fa-crown"></i> 👑 Admin Dashboard</h3>
             <div class="btn-grid">
-                <button class="btn btn-primary" onclick="showBookings()">
+                <button class="btn btn-primary" onclick="showAllBookings()">
                     <i class="fas fa-list"></i> All Bookings
                 </button>
-                <button class="btn btn-secondary" onclick="showUsers()">
+                <button class="btn btn-secondary" onclick="showAllUsers()">
                     <i class="fas fa-users"></i> All Users
                 </button>
             </div>
-            <div class="table-container">
-                <table id="table">
-                    <thead><tr><th>No Data</th></tr></thead>
+            <div class="table-container" id="adminTableContainer">
+                <table id="adminTable">
+                    <thead><tr><th>No Data Available</th></tr></thead>
                 </table>
             </div>
         </div>
 
-        <div class="card admin hidden" id="techPanel">
-            <h3><i class="fas fa-hard-hat"></i> Technician Dashboard</h3>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;">
-                <h4>Total Earnings: <span style="color:#10b981;font-size:1.5rem;">₹<span id="earn">0</span></span></h4>
-                <button class="btn btn-primary" onclick="showMyJobs()">
-                    <i class="fas fa-sync-alt"></i> Refresh
+        <div class="card hidden" id="techPanel">
+            <h3><i class="fas fa-hard-hat"></i> 🔧 Technician Dashboard</h3>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.5rem;flex-wrap:wrap;gap:1rem;">
+                <h4>Total Earnings: <span style="color:#10b981;font-size:1.5rem;">₹<span id="techEarnings">0</span></span></h4>
+                <button class="btn btn-primary" onclick="loadTechJobs()">
+                    <i class="fas fa-sync-alt"></i> Refresh Jobs
                 </button>
             </div>
             <div class="table-container">
-                <table id="myjobs">
+                <table id="techJobsTable">
                     <thead><tr><th>No Jobs Assigned</th></tr></thead>
                 </table>
             </div>
@@ -216,118 +217,142 @@
     </main>
 
     <script>
-        // ✅ COMPLETE PROFESSIONAL FIXED CODE - ALL ERRORS FIXED
-        let adminPhone = "9718567385";
-        let adminPass = "DL8SDM0339";
-        let users = JSON.parse(localStorage.getItem("users")) || [];
-        let bookings = JSON.parse(localStorage.getItem("data")) || [];
-        let visitingCharge = 250;
+        // ✅ GLOBAL VARIABLES
+        const ADMIN_PHONE = "9718567385";
+        const ADMIN_PASS = "DL8SDM0339";
+        let users = JSON.parse(localStorage.getItem('users')) || [];
+        let bookings = JSON.parse(localStorage.getItem('bookings')) || [];
+        const VISIT_CHARGE = 250;
 
-        // ✅ SHOW/HIDE PASSWORD FUNCTION - 100% WORKING
-        document.addEventListener('DOMContentLoaded', function() {
-            const togglePassword = document.getElementById('togglePassword');
-            const passwordField = document.getElementById('loginPass');
-            
-            togglePassword.addEventListener('click', function() {
-                if (passwordField.type === 'password') {
-                    passwordField.type = 'text';
-                    togglePassword.classList.remove('fa-eye');
-                    togglePassword.classList.add('fa-eye-slash');
-                    togglePassword.title = 'Hide password';
-                } else {
-                    passwordField.type = 'password';
-                    togglePassword.classList.remove('fa-eye-slash');
-                    togglePassword.classList.add('fa-eye');
-                    togglePassword.title = 'Show password';
-                }
-            });
+        // ✅ PAGE LOAD - SHOW PASSWORD FUNCTION ATTACH
+        window.addEventListener('load', function() {
+            attachPasswordToggle();
+            updateStats();
+            checkLoginStatus();
         });
 
-        function showMsg(text, type = "") {
-            let msg = document.getElementById("msg");
-            msg.textContent = text;
-            msg.className = type;
-            setTimeout(() => msg.textContent = "", 4000);
+        // ✅ PERFECT SHOW/HIDE PASSWORD FUNCTION
+        function attachPasswordToggle() {
+            const toggleBtn = document.getElementById('togglePassword');
+            const passwordField = document.getElementById('loginPassword');
+            
+            if (toggleBtn && passwordField) {
+                toggleBtn.onclick = function() {
+                    if (passwordField.type === 'password') {
+                        passwordField.type = 'text';
+                        toggleBtn.classList.remove('fa-eye');
+                        toggleBtn.classList.add('fa-eye-slash');
+                        toggleBtn.title = 'Hide Password';
+                    } else {
+                        passwordField.type = 'password';
+                        toggleBtn.classList.remove('fa-eye-slash');
+                        toggleBtn.classList.add('fa-eye');
+                        toggleBtn.title = 'Show Password';
+                    }
+                };
+            }
         }
 
+        // ✅ MESSAGE FUNCTION
+        function showMessage(id, text, type = '') {
+            const msgEl = document.getElementById(id);
+            if (msgEl) {
+                msgEl.textContent = text;
+                msgEl.className = type;
+                setTimeout(() => {
+                    msgEl.textContent = '';
+                    msgEl.className = '';
+                }, 4000);
+            }
+        }
+
+        // ✅ SCROLL FUNCTIONS
         function scrollToLogin() {
-            document.getElementById('loginCard').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('loginCard').scrollIntoView({behavior: 'smooth'});
         }
 
         function scrollToBooking() {
-            document.getElementById('bookingCard').scrollIntoView({ behavior: 'smooth' });
+            document.getElementById('bookingCard').scrollIntoView({behavior: 'smooth'});
         }
 
+        // ✅ STATS UPDATE
         function updateStats() {
             document.getElementById('totalBookings').textContent = bookings.length;
         }
 
-        function loginUser() {
-            let role = document.getElementById('role').value;
-            let phone = document.getElementById('loginPhone').value.trim();
-            let pass = document.getElementById('loginPass').value;
+        // ✅ LOGIN FUNCTION
+        function login() {
+            const role = document.getElementById('roleSelect').value;
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
-            if (!phone || !pass) {
-                showMsg("❌ Phone aur Password daaliye!", "error");
+            if (!phone || !password) {
+                showMessage('loginMsg', '❌ Phone और Password भरें!', 'error');
                 return;
             }
 
-            // Admin login
-            if (role === "admin" && phone === adminPhone && pass === adminPass) {
-                localStorage.setItem("role", "admin");
-                localStorage.setItem("currentUser", phone);
-                localStorage.setItem("currentUserName", "Admin");
-                showWelcome("Admin");
-                showMsg("👑 Admin Login Successful!", "success");
-                document.getElementById("adminPanel").classList.remove("hidden");
-                document.getElementById("techPanel").classList.add("hidden");
-                showBookings();
+            // ADMIN LOGIN
+            if (role === 'admin' && phone === ADMIN_PHONE && password === ADMIN_PASS) {
+                localStorage.setItem('userRole', 'admin');
+                localStorage.setItem('currentUser', phone);
+                localStorage.setItem('userName', 'Admin');
+                showWelcome('Admin');
+                showMessage('loginMsg', '✅ Admin Login Successful! 👑', 'success');
+                showAdminPanel();
+                showAllBookings();
                 return;
             }
 
-            // User login
-            let user = users.find(u => u.phone === phone && u.role === role);
-            if (user && user.pass === pass) {
-                localStorage.setItem("role", role);
-                localStorage.setItem("currentUser", phone);
-                localStorage.setItem("currentUserName", user.name);
+            // USER LOGIN
+            const user = users.find(u => u.phone === phone && u.role === role && u.password === password);
+            if (user) {
+                localStorage.setItem('userRole', role);
+                localStorage.setItem('currentUser', phone);
+                localStorage.setItem('userName', user.name);
                 showWelcome(user.name);
-                showMsg(`✅ Welcome ${user.name}!`, "success");
+                showMessage('loginMsg', `✅ Welcome ${user.name}!`, 'success');
                 
-                document.getElementById("adminPanel").classList.add("hidden");
-                if (role === "technician") {
-                    document.getElementById("techPanel").classList.remove("hidden");
-                    showMyJobs();
+                if (role === 'technician') {
+                    showTechPanel();
+                    loadTechJobs();
                 }
             } else {
-                showMsg("❌ Galat Phone ya Password!", "error");
+                showMessage('loginMsg', '❌ Invalid Credentials!', 'error');
             }
         }
 
-        function showWelcome(name) {
-            document.getElementById('userWelcome').classList.remove('hidden');
-            document.getElementById('currentUserName').textContent = name;
-        }
-
-        function logout() {
-            localStorage.removeItem("role");
-            localStorage.removeItem("currentUser");
-            localStorage.removeItem("currentUserName");
-            document.getElementById('userWelcome').classList.add('hidden');
-            document.getElementById("adminPanel").classList.add("hidden");
-            document.getElementById("techPanel").classList.add("hidden");
-            showMsg("👋 Logout successful!", "success");
-        }
-
-        function registerUser() {
-            let role = document.getElementById('role').value;
-            let phone = document.getElementById('loginPhone').value.trim();
-            let pass = document.getElementById('loginPass').value;
+        // ✅ REGISTER FUNCTION
+        function register() {
+            const role = document.getElementById('roleSelect').value;
+            const phone = document.getElementById('loginPhone').value.trim();
+            const password = document.getElementById('loginPassword').value;
 
             if (users.find(u => u.phone === phone)) {
-                showMsg("❌ Ye phone pehle se registered hai!", "error");
+                showMessage('loginMsg', '❌ Phone already registered!', 'error');
                 return;
             }
 
-            let name = prompt("Apna full name enter kariye:");
-            if (!name || !
+            const name = prompt('Enter your full name:');
+            if (name && phone && password) {
+                users.push({
+                    name: name.trim(),
+                    phone: phone,
+                    password: password,
+                    role: role,
+                    date: new Date().toISOString()
+                });
+                localStorage.setItem('users', JSON.stringify(users));
+                showMessage('loginMsg', '✅ Registered! Now login.', 'success');
+            } else {
+                showMessage('loginMsg', '❌ All fields required!', 'error');
+            }
+        }
+
+        // ✅ BOOK SERVICE
+        function bookService() {
+            const name = document.getElementById('customerName').value.trim();
+            const phone = document.getElementById('customerPhone').value.trim();
+            const service = document.getElementById('serviceType').value;
+            const address = document.getElementById('customerAddress').value.trim();
+
+            if
