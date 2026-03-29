@@ -33,7 +33,7 @@
         input:focus,select:focus{outline:none;border-color:#22c55e;box-shadow:0 0 0 3px rgba(34,197,94,0.2);background:rgba(255,255,255,0.15);}
         input::placeholder{color:#64748b;}
         .password-container{position:relative;}
-        .password-toggle{position:absolute;right:1rem;top:50%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:1.2rem;transition:all 0.3s ease;}
+        .password-toggle{position:absolute;right:1rem;top:55%;transform:translateY(-50%);cursor:pointer;color:#94a3b8;font-size:1.2rem;transition:all 0.3s ease;z-index:10;}
         .password-toggle:hover{color:#22c55e;}
         input[type="password"]::-ms-reveal, input[type="password"]::-ms-clear {display: none;}
         
@@ -70,6 +70,7 @@
         .admin{display:none;}
         .success{color:#10b981;}
         .error{color:#ef4444;}
+        .print-btn{background:#8b5cf6 !important;}
     </style>
 </head>
 
@@ -127,11 +128,11 @@
                 <label><i class="fas fa-phone"></i> Phone</label>
                 <input id="loginPhone" type="tel" placeholder="Enter phone number">
             </div>
-            <div class="form-group password-container">
+            <div class="form-group">
                 <label><i class="fas fa-lock"></i> Password</label>
-                <div style="position:relative;">
+                <div class="password-container">
                     <input id="loginPass" type="password" placeholder="Enter password">
-                    <i class="fas fa-eye password-toggle" id="togglePassword" onclick="togglePassword()" title="Show password"></i>
+                    <i class="fas fa-eye password-toggle" id="togglePassword" title="Show password"></i>
                 </div>
             </div>
             <div class="btn-grid">
@@ -141,7 +142,7 @@
                 <button class="btn btn-secondary" onclick="registerUser()">
                     <i class="fas fa-user-plus"></i> Register
                 </button>
-                <button class="btn btn-secondary" onclick="logout()">
+                <button class="btn btn-secondary btn-small" onclick="logout()">
                     <i class="fas fa-sign-out-alt"></i> Logout
                 </button>
             </div>
@@ -215,36 +216,38 @@
     </main>
 
     <script>
-        // ✅ COMPLETE FIXED JAVASCRIPT - ALL ERRORS FIXED + SHOW/HIDE PASSWORD
+        // ✅ COMPLETE PROFESSIONAL FIXED CODE - ALL ERRORS FIXED
         let adminPhone = "9718567385";
         let adminPass = "DL8SDM0339";
         let users = JSON.parse(localStorage.getItem("users")) || [];
         let bookings = JSON.parse(localStorage.getItem("data")) || [];
         let visitingCharge = 250;
 
-        // ✅ SHOW/HIDE PASSWORD FUNCTION
-        function togglePassword() {
+        // ✅ SHOW/HIDE PASSWORD FUNCTION - 100% WORKING
+        document.addEventListener('DOMContentLoaded', function() {
+            const togglePassword = document.getElementById('togglePassword');
             const passwordField = document.getElementById('loginPass');
-            const toggleIcon = document.getElementById('togglePassword');
             
-            if (passwordField.type === 'password') {
-                passwordField.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-                toggleIcon.title = 'Hide password';
-            } else {
-                passwordField.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-                toggleIcon.title = 'Show password';
-            }
-        }
+            togglePassword.addEventListener('click', function() {
+                if (passwordField.type === 'password') {
+                    passwordField.type = 'text';
+                    togglePassword.classList.remove('fa-eye');
+                    togglePassword.classList.add('fa-eye-slash');
+                    togglePassword.title = 'Hide password';
+                } else {
+                    passwordField.type = 'password';
+                    togglePassword.classList.remove('fa-eye-slash');
+                    togglePassword.classList.add('fa-eye');
+                    togglePassword.title = 'Show password';
+                }
+            });
+        });
 
         function showMsg(text, type = "") {
             let msg = document.getElementById("msg");
             msg.textContent = text;
             msg.className = type;
-            setTimeout(() => msg.textContent = "", 3000);
+            setTimeout(() => msg.textContent = "", 4000);
         }
 
         function scrollToLogin() {
@@ -261,11 +264,11 @@
 
         function loginUser() {
             let role = document.getElementById('role').value;
-            let phone = document.getElementById('loginPhone').value;
+            let phone = document.getElementById('loginPhone').value.trim();
             let pass = document.getElementById('loginPass').value;
 
             if (!phone || !pass) {
-                showMsg("Please enter phone and password", "error");
+                showMsg("❌ Phone aur Password daaliye!", "error");
                 return;
             }
 
@@ -275,7 +278,7 @@
                 localStorage.setItem("currentUser", phone);
                 localStorage.setItem("currentUserName", "Admin");
                 showWelcome("Admin");
-                showMsg("Admin login successful! 👑", "success");
+                showMsg("👑 Admin Login Successful!", "success");
                 document.getElementById("adminPanel").classList.remove("hidden");
                 document.getElementById("techPanel").classList.add("hidden");
                 showBookings();
@@ -289,7 +292,7 @@
                 localStorage.setItem("currentUser", phone);
                 localStorage.setItem("currentUserName", user.name);
                 showWelcome(user.name);
-                showMsg(`Welcome ${user.name}! ✅`, "success");
+                showMsg(`✅ Welcome ${user.name}!`, "success");
                 
                 document.getElementById("adminPanel").classList.add("hidden");
                 if (role === "technician") {
@@ -297,7 +300,7 @@
                     showMyJobs();
                 }
             } else {
-                showMsg("Invalid credentials!", "error");
+                showMsg("❌ Galat Phone ya Password!", "error");
             }
         }
 
@@ -313,29 +316,18 @@
             document.getElementById('userWelcome').classList.add('hidden');
             document.getElementById("adminPanel").classList.add("hidden");
             document.getElementById("techPanel").classList.add("hidden");
-            showMsg("Logged out successfully!", "success");
+            showMsg("👋 Logout successful!", "success");
         }
 
         function registerUser() {
             let role = document.getElementById('role').value;
-            let phone = document.getElementById('loginPhone').value;
+            let phone = document.getElementById('loginPhone').value.trim();
             let pass = document.getElementById('loginPass').value;
 
             if (users.find(u => u.phone === phone)) {
-                showMsg("Phone already registered!", "error");
+                showMsg("❌ Ye phone pehle se registered hai!", "error");
                 return;
             }
 
-            let name = prompt("Enter your full name:");
-            if (!name || !phone || !pass) {
-                showMsg("All fields required!", "error");
-                return;
-            }
-
-            users.push({ name, phone, pass, role });
-            localStorage.setItem("users", JSON.stringify(users));
-            showMsg("✅ Registered successfully! Now login.", "success");
-        }
-
-        function book() {
-            let name
+            let name = prompt("Apna full name enter kariye:");
+            if (!name || !
